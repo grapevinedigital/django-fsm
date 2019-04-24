@@ -52,7 +52,7 @@ def generate_dot(fields_data):
             if 'meta' in transition.custom and \
                     'name' in transition.custom['meta'] and \
                     transition.source in transition.custom['meta']['name']:
-                transition_name = "%s [%s]" % (transition.custom['meta']['name'][transition.source], transition_name)
+                transition_name = transition.custom['meta']['name'][transition.source]
 
             if transition.source == '*':
                 any_targets.add((transition.target, transition_name))
