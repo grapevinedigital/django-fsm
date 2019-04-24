@@ -47,20 +47,27 @@ def generate_dot(fields_data):
 
         # dump nodes and edges
         for transition in field.get_all_transitions(model):
+            transition_name = transition.name
+
+            if 'meta' in transition.custom and \
+                    'name' in transition.custom['meta'] and \
+                    transition.source in transition.custom['meta']['name']:
+                transition_name = transition.custom['meta']['name'][transition.source]
+
             if transition.source == '*':
-                any_targets.add((transition.target, transition.name))
+                any_targets.add((transition.target, transition_name))
             elif transition.source == '+':
-                any_except_targets.add((transition.target, transition.name))
+                any_except_targets.add((transition.target, transition_name))
             else:
                 source_name = node_name(field, transition.source)
                 if transition.target is not None:
                     if isinstance(transition.target, GET_STATE) or isinstance(transition.target, RETURN_VALUE):
                         if transition.target.allowed_states:
                             for transition_target_index, transition_target in enumerate(transition.target.allowed_states):
-                                add_transition(transition.source, transition_target, transition.name,
+                                add_transition(transition.source, transition_target, transition_name,
                                                source_name, field, sources, targets, edges)
                     else:
-                        add_transition(transition.source, transition.target, transition.name,
+                        add_transition(transition.source, transition.target, transition_name,
                                        source_name, field, sources, targets, edges)
             if transition.on_error:
                 on_error_name = node_name(field, transition.on_error)
@@ -85,9 +92,14 @@ def generate_dot(fields_data):
 
         # construct subgraph
         opts = field.model._meta
+
+        label = "%s.%s.%s" % (opts.app_label, opts.object_name, field.name)
+        if field.diagram_label:
+            label = field.diagram_label
+
         subgraph = graphviz.Digraph(
             name="cluster_%s_%s_%s" % (opts.app_label, opts.object_name, field.name),
-            graph_attr={'label': "%s.%s.%s" % (opts.app_label, opts.object_name, field.name)})
+            graph_attr={'label': "%s" % label})
 
         final_states = targets - sources
         for name, label in final_states:

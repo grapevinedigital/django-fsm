@@ -388,11 +388,14 @@ class FSMFieldMixin(object):
 
 
 class FSMField(FSMFieldMixin, models.CharField):
+    diagram_label = 'STD'
+
     """
     State Machine support for Django model as CharField
     """
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 50)
+        self.diagram_label = kwargs.pop('diagram_label', self.diagram_label)
         super(FSMField, self).__init__(*args, **kwargs)
 
 
