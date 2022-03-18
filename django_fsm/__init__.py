@@ -8,7 +8,7 @@ from functools import wraps
 
 from django.db import models
 from django.db.models.signals import class_prepared
-from django.utils.functional import curry
+from functools import partial as curry
 from django_fsm.signals import pre_transition, post_transition
 
 try:
